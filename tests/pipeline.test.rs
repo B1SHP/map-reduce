@@ -35,7 +35,7 @@ fn should_keep_result_when_combiner_runs_before_reducer() {
     let reduced = run(env!("CARGO_BIN_EXE_reducer"), &combined);
 
     assert!(reduced.contains("x\tr=1.000000\tn=2"));
-    assert!(!reduced.contains("temp\tr="));
+    assert!(reduced.contains("controle_temp\tr=1.000000\tn=2"));
 }
 
 #[test]

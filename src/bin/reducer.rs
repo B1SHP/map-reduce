@@ -21,23 +21,22 @@ fn write_reduced<R: BufRead, W: Write>(reader: R, mut writer: W) -> io::Result<(
         .into_iter()
         .filter(|(key, _)| key != "temp")
         .try_for_each(|(key, stats)| writeln!(writer, "{}", render(&key, stats)))?;
-    writer.flush()?;
 
     if let Some(stats) = temperature_control {
-        log_temperature_control(stats);
+        writeln!(writer, "{}", render_temperature_control(stats))?;
     }
     Ok(())
 }
 
-// Registra autocorrelação somente como controle, fora da saída final Hadoop.
-fn log_temperature_control(stats: Stats) {
+// Formata autocorrelação como última linha, separada das relações solicitadas.
+fn render_temperature_control(stats: Stats) -> String {
     match stats.correlation() {
-        Some(correlation) => eprintln!(
-            "Controle técnico — temp × temp: r={correlation:.6}; n={}. Esperado: r=1,0 quando a temperatura possui variação.",
+        Some(correlation) => format!(
+            "controle_temp\tr={correlation:.6}\tn={}\tcontrole técnico: autocorrelação da temperatura; esperado r=1,0",
             stats.count
         ),
-        None => eprintln!(
-            "Controle técnico — temp × temp: indefinida; n={}. A temperatura não possui variação.",
+        None => format!(
+            "controle_temp\tr=indefinida\tn={}\tcontrole técnico: temperatura sem variação",
             stats.count
         ),
     }
