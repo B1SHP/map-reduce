@@ -4,19 +4,43 @@ use map_reduce::{Stats, aggregate, log_read_error, parse_protocol, report};
 
 fn main() {
     write_reduced(io::stdin().lock(), io::stdout().lock())
-        .unwrap_or_else(|error| report("Reducer", error));
+        .unwrap_or_else(|error| report("Redutor", error));
 }
 
 // Une estados globais por chave e produz uma correlação final por alvo.
 fn write_reduced<R: BufRead, W: Write>(reader: R, mut writer: W) -> io::Result<()> {
-    aggregate(
+    let totals = aggregate(
         reader
             .lines()
             .filter_map(log_read_error)
             .filter_map(|line| parse_protocol(&line)),
-    )
-    .into_iter()
-    .try_for_each(|(key, stats)| writeln!(writer, "{}", render(&key, stats)))
+    );
+    let temperature_control = totals.get("temp").copied();
+
+    totals
+        .into_iter()
+        .filter(|(key, _)| key != "temp")
+        .try_for_each(|(key, stats)| writeln!(writer, "{}", render(&key, stats)))?;
+    writer.flush()?;
+
+    if let Some(stats) = temperature_control {
+        log_temperature_control(stats);
+    }
+    Ok(())
+}
+
+// Registra autocorrelação somente como controle, fora da saída final Hadoop.
+fn log_temperature_control(stats: Stats) {
+    match stats.correlation() {
+        Some(correlation) => eprintln!(
+            "Controle técnico — temp × temp: r={correlation:.6}; n={}. Esperado: r=1,0 quando a temperatura possui variação.",
+            stats.count
+        ),
+        None => eprintln!(
+            "Controle técnico — temp × temp: indefinida; n={}. A temperatura não possui variação.",
+            stats.count
+        ),
+    }
 }
 
 // Formata uma linha final, incluindo valor e interpretação do coeficiente.

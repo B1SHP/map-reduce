@@ -233,7 +233,7 @@ impl Day {
 
 fn main() {
     write_mapped(io::stdin().lock(), io::stdout().lock())
-        .unwrap_or_else(|error| report("Mapper", error));
+        .unwrap_or_else(|error| report("Mapeador", error));
 }
 
 // Lê CSV, cria pares para cada alvo e escreve protocolo MapReduce.
@@ -243,7 +243,7 @@ fn write_mapped<R: BufRead, W: Write>(reader: R, mut writer: W) -> io::Result<()
         .filter_map(log_read_error)
         .filter_map(|line| {
             map_record(&line).or_else(|| {
-                eprintln!("Ignoring invalid CSV record");
+                eprintln!("Ignorando registro CSV inválido");
                 None
             })
         })

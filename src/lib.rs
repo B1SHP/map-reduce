@@ -137,12 +137,12 @@ fn non_negative(value: f64) -> Option<f64> {
 // Registra falha de leitura e remove linha inválida de um iterator.
 pub fn log_read_error(result: io::Result<String>) -> Option<String> {
     result
-        .inspect_err(|error| eprintln!("Ignoring unreadable input line: {error}"))
+        .inspect_err(|error| eprintln!("Ignorando linha de entrada que não pôde ser lida: {error}"))
         .ok()
 }
 
 // Relata falha terminal de qualquer binário e encerra processo com erro.
 pub fn report(program: &str, error: io::Error) -> ! {
-    eprintln!("{program} failed: {error}");
+    eprintln!("{program} falhou: {error}");
     std::process::exit(1);
 }

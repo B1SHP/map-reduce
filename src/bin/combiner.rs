@@ -4,7 +4,7 @@ use map_reduce::{aggregate, log_read_error, parse_protocol, report};
 
 fn main() {
     write_combined(io::stdin().lock(), io::stdout().lock())
-        .unwrap_or_else(|error| report("Combiner", error));
+        .unwrap_or_else(|error| report("Combinador", error));
 }
 
 // Agrupa estados locais, reduzindo volume transferido para reducer.
