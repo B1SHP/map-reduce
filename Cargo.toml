@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+
+[[test]]
+name = "pipeline"
+path = "tests/pipeline.test.rs"
